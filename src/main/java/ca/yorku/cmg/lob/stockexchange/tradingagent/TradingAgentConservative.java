@@ -15,12 +15,12 @@ import ca.yorku.cmg.lob.orderbook.Ask;
  */
 public class TradingAgentConservative extends TradingAgent {
 
-	public TradingAgentConservative(Trader t, StockExchange e, NewsBoard n) {
-		super(t, e, n);
+	public TradingAgentConservative(Trader t, StockExchange e, NewsBoard n, ITradingStrategy strategy) {
+		super(t, e, n, strategy);
 	}
 
 	@Override
-	protected void actOnEvent(Event e, int pos, int price) {
+	public void actOnEvent(Event e, int pos, int price) {
 		
 		IOrder newOrder = null;
 		

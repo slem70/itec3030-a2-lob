@@ -15,12 +15,12 @@ import ca.yorku.cmg.lob.tradestandards.IOrder;
  */
 public class TradingAgentAggressive extends TradingAgent {
 
-	public TradingAgentAggressive(Trader t, StockExchange e, NewsBoard n) {
-		super(t, e, n);
+	public TradingAgentAggressive(Trader t, StockExchange e, NewsBoard n, ITradingStrategy strategy) {
+		super(t, e, n, strategy);
 	}
 
 	@Override
-	protected void actOnEvent(Event e, int pos, int price) {
+	public void actOnEvent(Event e, int pos, int price) {
 
 		IOrder newOrder = null;
 		

@@ -173,22 +173,28 @@ public class StockExchange {
 	                    long initBalance = Long.parseLong(parts[3].trim());
 	                    String tradingStyle = parts[4].trim();
 	                	Trader t;
-	                    if (traderType.equals("Retail")) {
+	                    if (traderType.equalsIgnoreCase("Retail")) {
 	                    	t = new TraderRetail(traderTitle);
-	                    } else {
+	                    } else if (traderType.equalsIgnoreCase("Institutional")) {
 	                    	t = new TraderInstitutional(traderTitle);
-	                    }
-	                    if (accType.equals("Basic")) {
+	                    } else {
+							System.err.println("Unknown trader type: " + traderType);
+	                    	continue;
+						}
+	                    if (accType.equalsIgnoreCase("Basic")) {
 	                    	accounts.addAccount(new AccountBasic(t,initBalance));
-	                    } else {
+	                    } else if (accType.equalsIgnoreCase("Pro")) {
 	                    	accounts.addAccount(new AccountPro(t,initBalance));
-	                    }
-	                    if (tradingStyle.equals("Conservative")) {
-	                    	traders.add(new TradingAgentConservative(t,this,newsDesk));
 	                    } else {
-	                    	traders.add(new TradingAgentAggressive(t,this,newsDesk));
+							System.err.println("Unknown account type: " + accType);
+	                    	continue;
+						}
+	                    if (tradingStyle.equals("Conservative")) {
+	                    	traders.add(new TradingAgentConservative(t,this,newsDesk, null));
+	                    } else {
+	                    	traders.add(new TradingAgentAggressive(t,this,newsDesk, null));
 	                    }
-	                    
+
 	                } else {
 	                    System.err.println("Skipping malformed line (two few attributes): " + line);
 	                }
