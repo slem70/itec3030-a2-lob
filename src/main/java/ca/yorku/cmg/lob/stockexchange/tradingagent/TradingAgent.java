@@ -8,7 +8,7 @@ import ca.yorku.cmg.lob.trader.Trader;
 /**
  * An trading agent that receives news and reacts by submitting ask or bid orders.
  */
-public abstract class TradingAgent implements ITradingStrategy {
+public abstract class TradingAgent implements INewsObserver {
 	protected Trader t;
 	protected StockExchange exc;
 	protected NewsBoard news;
@@ -21,11 +21,12 @@ public abstract class TradingAgent implements ITradingStrategy {
 	 * @param n The {@linkplain NewsBoard} object that generates news events.
 	 * @param strategy The trading strategy (aggressive, conservative, etc.).
 	 */
-	public TradingAgent(Trader t, StockExchange e, NewsBoard n, ITradingStrategy strategy) {
+	public TradingAgent(Trader t, StockExchange e, NewsBoard news, ITradingStrategy strategy) {
 		this.t=t;
 		this.exc = e;
-		this.news = n;
+		this.news = news;
 		this.strategy = strategy;
+		news.registerObserver(this);
 	}
 
 	public Trader getTrader() {
@@ -43,6 +44,7 @@ public abstract class TradingAgent implements ITradingStrategy {
 	public void setTradingStrategy(ITradingStrategy strategy) {
 		this.strategy = strategy;
 	}
+
 
 	/**
 	 * Method to be called as time advances to {@code time}. In response the TradingAgent will poll the NewsBoard for events.
@@ -75,6 +77,14 @@ public abstract class TradingAgent implements ITradingStrategy {
 		}
 
 	}
+
+	@Override
+    public void update(Event e) {
+        int positionInSecurity = exc.getAccounts().getTraderAccount(t).getPosition(e.getSecrity().getTicker());
+        if (positionInSecurity > 0) {
+            actOnEvent(e, positionInSecurity, exc.getPrice(e.getSecrity().getTicker()));
+        }
+    }
 	
 	
 	/**
@@ -83,13 +93,7 @@ public abstract class TradingAgent implements ITradingStrategy {
 	 * @param pos The position (number of units) of the trader to the ticker that is mentioned in the Event.
 	 * @param price The current price of the relevant ticker. 
 	 */
-	public void actOnEvent(Event e, int pos, int price) {
-		 if (strategy != null) {
-            strategy.actOnEvent(e, pos, price);
-        } else {
-            System.out.println("No strategy defined");
-        }
-	}
+	protected abstract void actOnEvent(Event e, int pos, int price);
 	
 
 }

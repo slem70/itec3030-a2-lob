@@ -3,24 +3,30 @@ package ca.yorku.cmg.lob.stockexchange.events;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Set;
 
 import ca.yorku.cmg.lob.security.Security;
 import ca.yorku.cmg.lob.security.SecurityList;
+import ca.yorku.cmg.lob.stockexchange.tradingagent.INewsObserver;
 
 /**
  * A NewsBoard object generates and shares financial/economic events that affect specific securities 
  */
-public class NewsBoard {
+public class NewsBoard implements Runnable{
 
 	//Events are queued ordered by time
-	PriorityQueue<Event> eventQueue = new PriorityQueue<>((e1, e2) -> Long.compare(e1.getTime(), e2.getTime()));
+	private PriorityQueue<Event> eventQueue = new PriorityQueue<>((e1, e2) -> Long.compare(e1.getTime(), e2.getTime()));
+
+	//List of observers
+	private List<INewsObserver> observers = new ArrayList<>();
 
 	SecurityList securities;
-	
+
 	public NewsBoard(SecurityList x) {
 		this.securities = x;
 	}
@@ -110,15 +116,39 @@ public class NewsBoard {
 		}
 		return (e);
 	}
-	
+
+	public void registerObserver(INewsObserver observer) {
+        observers.add(observer);
+    }
+
+
+	private void notifyObservers(Event e) {
+        for (INewsObserver observer : observers) {
+            observer.update(e);
+        }
+    }
 	
 	/**
 	 * Stub for the observer part. Runs the entire queue of events and sends notifications to registered trading agents.   
 	 */
 	public void runEventsList() {
+		while (!eventQueue.isEmpty()) {
+            Event e = eventQueue.poll();
+            notifyObservers(e); 
+	
+	}
 
 	}
-	
-	
-	
+
+
+	@Override
+	public void removeObserver(INewsObserver observer) {
+		throw new UnsupportedOperationException("Unimplemented method 'removeObserver'");
+	}
+
+	@Override
+	public void notifyObservers() {
+		throw new UnsupportedOperationException("Unimplemented method 'notifyObservers'");
+	}
+
 }
